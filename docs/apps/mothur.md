@@ -18,6 +18,7 @@ Mothur is a bioinformatics toolkit for the needs of the microbial ecology relate
 To initialize the default version of Mothur in Puhti use:
 ```text
 module load biokit
+module load mothur
 ```
 To load a specific version, load mothur module directly and specify a version, e.g.:
 ```text
