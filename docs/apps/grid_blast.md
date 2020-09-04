@@ -1,17 +1,13 @@
 # Using FGCI grid to run BLAST jobs
 
 
-!!! note
-    Grid blast is not yet installed on Puhti, but will be soon. The documentation
-    below will be updated.
-
 You can use the Finnish Grid and Cloud Infrastructure (FGCI) distributed computing environment 
 for running large BLAST sequence similarity search tasks. In FGCI, a BLAST search, consisting of 
 large number of query sequences is split into a number of sub-tasks that are submitted for execution 
 to the FGCI clusters around Finland. Splitting and submitting the tasks to remote servers requires 
 some time, so in the case of small queries ( say less that 1000 query sequences) running the jobs 
 in the servers of CSC is usually faster. However if the query sets consists of tens of thousands of 
-sequences or more, the capacity of FGCI can be fully utilized and the through-put times are often 
+sequences or more, the capacity of FGCI can be fully utilized and the through-put times can be 
 shorter than what the clusters of CSC alone could provide.
 
 ## Getting grid access
@@ -21,12 +17,12 @@ To be able to use grid resources for BLAST searches, you should have:
 -     A valid grid certificate installed in the puhti.csc.fi server.
 -     Membership of fgi.csc.fi Virtual Organization
 
-For detailed instructions, see the first chapter of the FGI user guide.
+For detailed instructions, see the [first chapter of the FGI user guide](./../../cloud/fgci/fgci-user-guide-overview.md).
 
 ## Grid-BLAST @ CSC
 
-BLAST jobs can be submitted to FGCI using **gb** (Grid Blast) command in taito.csc.fi or taito-shell.csc.fi. 
-The gb command works in the same way as the pb command used to submit BLAST jobs to the local batch queues in Puhti. 
+BLAST jobs can be submitted to FGCI using **gb** (Grid Blast) command in puhti.csc.fi. 
+The gb command works in the same way as the pb command, that is used to submit BLAST jobs to the local batch queues in Puhti. 
 The gb command can be used with any BLAST command. It splits automatically your query sequences into smaller subjobs 
 and then submit these BLAST searches to be executed in the FGCI-grid. The script monitors the progress of the subjobs 
 and finally retrieves the results from the remote servers to the given output file.
@@ -34,16 +30,16 @@ and finally retrieves the results from the remote servers to the given output fi
 The _gb_ command must be kept running until all the subjobs have been processed. In the case of very large BLAST jobs, 
 this may take several days. Keeping the interactive terminal connection working for tens on hours may be difficult. 
 Because of that it is recommended that long grid BLAST jobs are submitted using a virtual terminal session, 
-started with the screen command. 
+started with the `screen` command. 
 (More information about screen: http://www.rackaid.com/resources/linux-screen-tutorial-and-how-to/)
 
  
 ## Submitting a grid BLAST job
 
 Let's assume we have a set of 26 000 fasta formatted nucleotide sequences in a file called _queryseq.fasta_. The file 
-locates in the $WRKDIR directory. In this example we compare this sequence set against _nr_ database with _blastx_ command.
+locates in the _scratch_ directory of the project in Puhti. In this example we compare this sequence set against _nr_ database with _blastx_ command.
 
-First, login to taito.csc.fi and open a virtual terminal with screen command:
+First, login to puhti.csc.fi and open a virtual terminal with screen command:
 ```
 screen
 ```
@@ -58,9 +54,9 @@ Then, setup the bioinformatics tools including BLAST:
 ```
 module load biokit
 ```
-and move to your $WRKDIR directory:
+and move to the scratch directory of your project:
 ```
-cd $WRKDIR
+cd /scratch/project_
 ```
 Now you can launch your search with command
 ```
@@ -100,34 +96,33 @@ Before you log out from Taito, you should check, which Taito login node (taito-l
 
 In the example above, set the grid-proxy to be valid for three days (72 hours). If your grid BLAST job need longer execution time you should update the grid-proxy before it expires. You can do this while the grid blast job is running in the background. For example, let's assume that the grid BLAST job, submitted above, have been running already for two days and it seems to need at least two more days to be completed. Then you should update the grid proxy. To do that, first login to the server where your grid BLAST is running. For example:
 ```
-ssh taito-login4.csc.fi
+ssh puhti.csc.fi
 ```
 And update the grid proxy with commands:
 ```
 arcproxy -S fgi.csc.fi -c validityPeriod=72h
 ```
-Even if you would fail to update the grid proxy certificate in time, the gb blast job does not terminate. Without a valid certificate, gb just can't submit new jobs or retrieve the results, but once valid proxy certificate is available again, the job will continue normally.
-Continuing interrupted gb command
+Even if you would fail to update the grid proxy certificate in time, the gb blast job does not terminate. Without a valid certificate, _gb_ just can't submit new jobs or retrieve the results, but once valid proxy certificate is available again, the job will continue normally.
+Continuing interrupted _gb_ command
 
-If the gb command fails to run until all the BLAST jobs have been processed, the job is not lost. The jobs that have been submitted to FGI will keep on running and the temporary files that the gb job uses are preserved in your $WRKDIR directory.
+If the _gb_ command fails to run until all the BLAST jobs have been processed, the job is not lost. The jobs that have been submitted to FGCI will keep on running and the temporary files that the gb job uses are preserved in your project directory.
 
-To continue the interrupted gb blast , use command:
+To continue the interrupted _gb blast_ , use command:
 ```
 blast_gridrun
 ```
-If you run this command with no arguments, you will see a list of grid blast temporary directories that your account has. From the directory name, pick the number part. That is the ID number of your job. Now, to continue the job give command
+If you run this command with no arguments, you will see a list of grid blast temporary directories that your account has. From the directory name, pick the number part. That is the ID number of your job. Now, to continue the job give command:
 ```
 blast_gridrun -jobid ID-number
 ```
 For example in the case of the sample job:
 ```
-drwx------ 3 kkmattil csc 4096 Aug 19 12:22 /wrk/kkmattil/pb_5510_tmpdir
+drwx------ 3 kkayttaj csc 4096 Aug 19 12:22 /proj/project_2001234/pb_5510_tmpdir
 ```
 The command to continue the job would be:
 ```
 blast_gridrun -jobid 5510
 ```
- 
 
 In addition to the the -jobid option, following options can be used with blast_gridrun
 
